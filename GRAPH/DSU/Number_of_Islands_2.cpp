@@ -4,6 +4,9 @@
 // https://practice.geeksforgeeks.org/problems/number-of-islands/1?utm_source=youtube&utm_medium=collab_striver_ytdescription&utm_campaign=number-of-islands
 
 
+//{ Driver Code Starts
+// Initial Template for C++
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -30,9 +33,11 @@ class DSU {
         if(x == y) return;
         if(size[x] > size[y]) {
             parent[y] = x;
+            size[x]++;
         }
         else{
             parent[x] = y;
+            size[y]++;
         }
     }
 };
