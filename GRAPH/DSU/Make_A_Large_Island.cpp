@@ -4,18 +4,22 @@
 // https://leetcode.com/problems/making-a-large-island/
 // https://practice.geeksforgeeks.org/problems/maximum-connected-group/1
 
+
 #include <bits/stdc++.h>
 using namespace std;
 
+
 // } Driver Code Ends
 // User function Template for C++
+
+
 class DSU {
   public:
     vector<int> parent,size;
     DSU(int n){
-        parent.resize(n);
-        size.resize(n,1);
-        for(int i=0; i<n; i++) parent[i] = i;
+        parent.resize(n+1);
+        size.resize(n+1,1);
+        for(int i=0; i<=n; i++) parent[i] = i;
     }
     
     int find_par(int x){
@@ -43,78 +47,88 @@ class DSU {
 class Solution {
   public:
   
-    bool isValid(int adjRow, int adjCol, int n, int m){
-        return adjRow >=0 && adjCol >= 0 && adjRow < n && adjCol < m;
+  bool isValid(int adjRow, int adjCol, int n){
+        return adjRow >=0 && adjCol >= 0 && adjRow < n && adjCol < n;
     }
     
-    vector<int> numOfIslands(int n, int m, vector<vector<int>> &operators) {
+    
+    int MaxConnection(vector<vector<int>>& grid) {
+        int n = grid.size();
+        DSU ds(n*n);
+        
+        // For the Checking AdjNode to All the Four direction
         
         vector<vector<int>> dir = {
             {0,1}, {1,0}, {-1,0},{0,-1}
         };
         
-        DSU ds(m*n);
-        vector<vector<int>> vis(n,vector<int>(m,0));
-        
-        // int vis[n][m];
-        // memset(vis,0,sizeof vis);
-        
-        vector<int> ans;
-        int count= 0;
-        for(auto it : operators){
-            int row = it[0];
-            int col = it[1];
-            if(vis[row][col] == 1){
-                ans.push_back(count);
-                continue;
-            }
-            vis[row][col] = 1;
-            count++;
-            
-            for(auto side : dir){
-                int adjRow = side[0]+row;
-                int adjCol = side[1]+col;
-                
-                if(isValid(adjRow,adjCol,n,m)){
-                    if(vis[adjRow][adjCol] == 1){
-                        int nodeNum = row * m + col;
-                        int adjNodeNum = adjRow * m + adjCol;
-                        if(ds.find_par(nodeNum) != ds.find_par(adjNodeNum)){
-                        ds.Union(nodeNum, adjNodeNum);
-                        count--;
-                       }
+        for(int i=0; i<n; i++){
+            for(int j=0; j<n; j++){
+                if(grid[i][j] == 1){
+                    for(auto it : dir){
+                        int adjRow = i + it[0];
+                        int adjCol = j + it[1];
+                        if(isValid(adjRow, adjCol, n) && grid[adjRow][adjCol] == 1) {
+                            int nodeNum = i * n + j;
+                            int adjNodeNum = adjRow * n + adjCol;
+                            ds.Union(nodeNum, adjNodeNum);
+                        }
                     }
                 }
             }
-            ans.push_back(count);
         }
-        return ans;
+        
+        int largeIsland = 0;
+        for(int i=0; i<n; i++){
+            for(int j=0; j<n; j++){
+                unordered_set<int> s;
+                if(grid[i][j] == 0){
+                    for(auto it : dir){
+                        int adjRow = i + it[0];
+                        int adjCol = j + it[1];
+                        
+                        if( isValid(adjRow, adjCol, n) && grid[adjRow][adjCol] == 1) {
+                            int adjNodeNum = adjRow * n + adjCol;
+                            s.insert(ds.find_par(adjNodeNum));
+                        }
+                    }
+                }
+                int total = 0;
+                for(auto it : s){
+                    total += ds.size[it];
+                }
+                largeIsland = max(total+1 , largeIsland);
+            }
+        }
+        // if all the cell value is 1 then 
+        for(int cellNo = 0; cellNo < n*n; cellNo++){
+            largeIsland = max(largeIsland , ds.size[ds.find_par(cellNo)]);
+        }
+        return largeIsland ; 
     }
 };
+
+    
 
 
 //{ Driver Code Starts.
 int main() {
+
     int t;
     cin >> t;
     while (t--) {
-        int n,m,k; cin>>n>>m>>k;
-        vector<vector<int>> a;
-        
-        for(int i=0; i<k; i++){
-            vector<int> temp;
-            for(int j=0; j<2; j++){
-                int x; cin>>x;
-                temp.push_back(x);
+        int n;
+        cin >> n;
+        vector<vector<int>> grid(n, vector<int>(n));
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                cin >> grid[i][j];
             }
-            a.push_back(temp);
         }
-    
+
         Solution obj;
-        vector<int> res = obj.numOfIslands(n,m,a);
-        
-        for(auto x : res)cout<<x<<" ";
-        cout<<"\n";
+        cout<<obj.MaxConnection(grid)<<"\n";
     }
 }
 
