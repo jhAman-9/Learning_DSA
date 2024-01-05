@@ -56,6 +56,33 @@ public:
         return maxi;
     }
 
+
+// There is another way which is Patience sorting 
+class Solution2 {
+public:
+    int f (vector<int> &nums,vector<int> &v){
+        int n = nums.size();
+        
+        // Patience Sorting ,  T.C = (n log n)  , S.C = O(n)
+        for(int i =0; i<n; i++){
+             auto it = lower_bound(begin(v), end(v), nums[i]);  // just greater than or equal to nums[i]
+            
+            if(it == end(v)){
+                v.push_back(nums[i]);  // greatest: so insert it
+            }
+            else{
+                *it = nums[i];      // replace with nums[i]
+            }
+        }
+        return v.size();
+    }
+    int lengthOfLIS(vector<int>& nums) {
+        vector<int> v;
+        return f(nums, v);
+    }
+};
+
+
     int lengthOfLIS(vector<int>& nums) {
         memset(dp,-1,sizeof dp);
         // return f(nums,0,-1);
